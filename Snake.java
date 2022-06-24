@@ -1,6 +1,6 @@
 /*
  * Snake created in Java.
- * This class requires GamePanel.java, GameTile.java, and SplashScreen.javas to
+ * This class requires GamePanel.java, GameTile.java, and startScreen.png to
  * be in the same directory in order to funciton properly. 
  * 
  * @author: Edan Steen
@@ -12,6 +12,9 @@ import java.awt.event.KeyAdapter;
 
 public class Snake {
 
+    //This variable detects if the user has started the game yet
+    public static boolean onStartScreen = true;
+
     public Snake() throws Exception {
         //setup
         JFrame frame = new JFrame("Snake");
@@ -22,14 +25,13 @@ public class Snake {
         frame.setContentPane(panel);
         frame.addKeyListener(new SnakeControls(panel));
         frame.pack();
-
         frame.setLocationRelativeTo(null); //put the frame in the middle of the screen
         frame.setVisible(true);
-        
-        panel.runGame();
 
-        frame.setTitle("Game Over.");
-        frame.setVisible(true);
+        //run the game 
+        panel.runGame();
+        
+        frame.dispose();
         return;
     }
 
@@ -70,6 +72,12 @@ class SnakeControls extends KeyAdapter {
             case 83: // S
             case 115: //s
                 panel.move(GamePanel.DIRECTION.DOWN);
+                break;
+            case 32: //Space
+                panel.triggerScreenEvent();
+                break;
+            case 27: //escape
+                panel.exit();
                 break;
             default:
                 break;
