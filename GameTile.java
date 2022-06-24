@@ -44,5 +44,6 @@ public class GameTile  {
     public void paintTile(int x, int y, Graphics g) {
         g.setColor(color);
         g.fillRect(x*tileWidth,y*tileWidth,tileWidth,tileWidth);
+        return;
     }
 }
