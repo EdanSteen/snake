@@ -6,8 +6,6 @@
  *  Make the graphics smoother 
  */
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.GridLayout;
 import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.event.KeyAdapter;
@@ -31,18 +29,16 @@ public class Snake {
     };
     public static DIRECTION dir;
 
-    //DIRECTION[] actionQueue;      do a thing here
+    //Create an queue of keyboard inputs to make controls smoother
+    public static DIRECTION[] moveQueue = {DIRECTION.STOP, DIRECTION.STOP};
+
 
     public Snake() throws Exception {
         //setup
         JFrame frame = new JFrame("Snake In Java");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
-        GridLayout layout = new GridLayout(ARENA_SIDELENGTH,ARENA_SIDELENGTH);
-        panel.setLayout(layout);
-        panel.setOpaque(true);
-        panel.setBackground(Color.WHITE);
+        GamePanel panel = new GamePanel(ARENA_SIDELENGTH);
         frame.setContentPane(panel);
         frame.setSize(WINDOW_SIDELENGTH, WINDOW_SIDELENGTH);
         frame.setResizable(false);
@@ -109,6 +105,7 @@ public class Snake {
                 prevX = prev2X;
                 prevY = prev2Y;
             }
+
             switch (dir) {
                 case LEFT:  
                     x--;
@@ -167,11 +164,7 @@ public class Snake {
             }
         }
 
-        panel.removeAll();
-        JLabel endText = new JLabel();
-        endText.setText("Your score was: "+tailLength);
-        endText.setOpaque(true);
-        panel.add(endText);
+        frame.setTitle("Game Over. Score: "+tailLength);
         frame.setVisible(true);
         return;
     }
@@ -194,28 +187,28 @@ public class Snake {
 
 }
 
+//This class receives keyboard input and gives it to the main class
 class MKeyListener extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println(e.getKeyChar());
         switch (e.getKeyChar()) {
-            case 65: //left (a)
-            case 97:
+            case 65: // A
+            case 97: // a
                 if (Snake.dir != Snake.DIRECTION.RIGHT)
                     Snake.move(Snake.DIRECTION.LEFT);
                 break; 
-            case 68: //right (d)
-            case 100:
+            case 68: // D
+            case 100: // d
                 if (Snake.dir != Snake.DIRECTION.LEFT)
                     Snake.move(Snake.DIRECTION.RIGHT);
                 break;
-            case 87: //up (w)
-            case 119:
+            case 87: // W
+            case 119: // w
                 if (Snake.dir != Snake.DIRECTION.DOWN)
                     Snake.move(Snake.DIRECTION.UP);
                 break;
-            case 83: //down (s)
-            case 115:
+            case 83: // S
+            case 115: //s
                 if (Snake.dir != Snake.DIRECTION.UP)
                     Snake.move(Snake.DIRECTION.DOWN);
                 break;
