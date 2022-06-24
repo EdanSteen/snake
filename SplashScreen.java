@@ -1,3 +1,5 @@
-public class SplashScreen {
+import javax.swing.JLabel;
+
+public class SplashScreen extends JLabel{
     
 }
