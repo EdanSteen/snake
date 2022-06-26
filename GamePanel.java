@@ -1,6 +1,6 @@
 /*
- * The GamePanel class contains all the logic of the game Snake and
- * draws it to the screen
+ * The GamePanel class contains all the logic, controls, and graphics
+ * for the game Snake
  * 
  * @author: Edan Steen
  * @version: 1.0
@@ -10,8 +10,11 @@ import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.lang.Math;
 import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 
 public class GamePanel extends JPanel {
     
@@ -19,55 +22,66 @@ public class GamePanel extends JPanel {
     final int WINDOW_SIDELENGTH = 600;
     //width of the individual tiles
     final int TILE_WIDTH = 40;
-    //width of the board
+    //width of the board. Note: a future feature could be updating the tile width to make the board larger
     final int BOARD_SIDELENGTH = WINDOW_SIDELENGTH/TILE_WIDTH;
-    //time between screen repaint (ms)
+    //time between frame updates
     final int GAME_SPEED = 100;
+    //the maximum length a snake can reach (the area of the board)
+    final int MAX_LENGTH = (BOARD_SIDELENGTH*BOARD_SIDELENGTH);
 
-    //The colors of the snake, fruit and background
-    //In the future, these could be changed by the player
+    //The colors of the snake, fruit and background. A future feature could be having these changed by the user.
     final Color SNAKE_COLOR = Color.GREEN;
     final Color FRUIT_COLOR = Color.RED;
     final Color BACKGROUND_COLOR = Color.BLACK;
 
     //the coordinates of the fruit 
     int fruitX, fruitY;
-    
-    //the length of the snake (the snake's head is included)
+    //the length of the snake (the snake's head is included in this value)
     int snakeLength; 
     
-    //the maximum length a snake can reach
-    final int MAX_LENGTH = (BOARD_SIDELENGTH*BOARD_SIDELENGTH);
-    
     //the coordinates of each of the parts of the snake
-    int[] snakeX = new int[MAX_LENGTH]; 
-    int[] snakeY = new int[MAX_LENGTH]; 
+    int[] snakeX, snakeY;
 
-    //checks if the player is on the start screen
-    private boolean onStartScreen = true;
-    //Is shown when the game is over
-    private boolean onEndScreen = false;
-    //determines if player wants to replay the game or not
-    private boolean replay = false;
+    //determines if the player is on the start screen
+    boolean onStartScreen = true;
+    //determines if the player is on the game over screen
+    boolean onEndScreen = false;
+    //determines if player wants to replay the game 
+    boolean replay = false;
 
-    //The direction the snake is moving towards
-    public enum DIRECTION {
+    //The directions the snake can move towards
+    enum DIRECTION {
         STOP, LEFT, RIGHT, UP, DOWN
     };
-    private DIRECTION dir;
 
+    //the current direction of the snake
+    DIRECTION dir; 
+    //the direction the user wants the snake to go
+    DIRECTION desiredDirection; 
 
+    /*
+     * Create the panel the game will be played in.
+     */
     public GamePanel() {
+        //Set the panel to the specified width
         this.setPreferredSize(new Dimension(WINDOW_SIDELENGTH,WINDOW_SIDELENGTH));
+        
+        //Add the background 
         this.setBackground(BACKGROUND_COLOR);
         this.setOpaque(true);
+
+        //Add the controls to be part of the panel
+        this.setFocusable(true);
+        this.addKeyListener(new SnakeControl());
+
+        //Put the player on the start screen 
         onStartScreen = true;
     }    
 
     /*
-     * This function essentially contains all the logic of snake, and then calls
-     * the repaint() method to draw it
-     * 
+     * This function resets all of the variables of the game, and then contains all the logic that
+     * make the game work. It uses repaint() to update the screen, and will loop until the player's
+     * snake hits a wall or itself 
      */
     public void runGame() {
         //Setup the game
@@ -76,7 +90,7 @@ public class GamePanel extends JPanel {
         boolean gameOver = false;
         replay = false;
 
-        //set length to just the head
+        //set length to just the head of the snake
         snakeLength = 1;
         
         //refresh the snake body
@@ -91,20 +105,13 @@ public class GamePanel extends JPanel {
         fruitX = snakeX[0] + (BOARD_SIDELENGTH/4);
         fruitY = snakeY[0];
 
-        //keep snake still at the starts
-        dir = DIRECTION.STOP;
+        //keep snake still at the start of the game
+        desiredDirection = DIRECTION.STOP;
 
         //Loop until the game ends
         while (!gameOver) {
             // Render the graphics
             this.repaint();
-
-            if (onEndScreen) {
-                delay();
-                return;
-            }
-                
-            // Logic 
 
             //Move up the components of the snake
             for (int i = snakeLength; i > 0; i--) {
@@ -112,6 +119,9 @@ public class GamePanel extends JPanel {
                 snakeY[i] = snakeY[i-1];
             }
             
+            //update the direction to be the desired direction. this is done to avoid the user clicking to fast and making the snake move backwards
+            dir = desiredDirection;
+
             //displace the head of the snake based on the direction
             switch (dir) {
                 case LEFT:  
@@ -128,6 +138,7 @@ public class GamePanel extends JPanel {
                     break;
                 case STOP:
                 default:
+                    //do nothing by default or when the snake is stopped
                     break;
             }
 
@@ -148,13 +159,13 @@ public class GamePanel extends JPanel {
                 //Put the fruit in a new position
                 boolean validPosition; //is true if the fruit isn't inside the snake
                 do {
-                    //set value to true to avoid infinite loop
+                    //Assume fruit is in valid position initially
                     validPosition = true;
-                    //put the coordinates to a random spot on the board
+                    //put the coordinates of the fruit to a random spot on the board
                     fruitY = (int) Math.round(Math.random()*(BOARD_SIDELENGTH-1));
                     fruitX = (int) Math.round(Math.random()*(BOARD_SIDELENGTH-1));  
 
-                    //reposition the fruit if it is inside part of the snake
+                    //set validPosition to false if fruit is inside the snake
                     for (int i = 0; i < snakeLength;i++) {
                         //check if the fruit spawns in the snake, but ignore if fruit is spawned in head of the snake
                         if  ((fruitX == snakeX[i] && fruitY == snakeY[i])) {
@@ -168,20 +179,24 @@ public class GamePanel extends JPanel {
             delay();
         }
      
-        //gameOver
+        //show the end screen
         onEndScreen = true;
         this.repaint();
+
+        //wait for user input as to whether they want to restart the game or not
         do {
-            delay();
+            delay(); //delay to not overuse the CPU
         } while(onEndScreen);
+
+        //restart the game if the user decided to
         if (replay == true) 
-            runGame();
+            runGame(); 
 
         return; 
     }
 
     /*
-     * set the direction of the snake
+     * Set the direction of the snake
      * 
      * @param DIRECTION d: the direction the snake should head towards
      */
@@ -190,77 +205,46 @@ public class GamePanel extends JPanel {
         if (onStartScreen)
             return;
 
-        //prevent user from trying moving backwards into the snake
-
-        //check if the desired direction isn't opposite of the current direction
-        if ((d == DIRECTION.UP && dir != DIRECTION.DOWN) ||
-            (d == DIRECTION.DOWN && dir != DIRECTION.UP) ||
-            (d == DIRECTION.LEFT && dir != DIRECTION.RIGHT) ||
-            (d == DIRECTION.RIGHT && dir != DIRECTION.LEFT)) {
-                //set the direction to the input
-                this.dir = d;
+        //check if the desired direction isn't opposite of the current direction (prevent snake from going backwards)
+        else if (d == DIRECTION.UP && dir != DIRECTION.DOWN ||
+            d == DIRECTION.DOWN && dir != DIRECTION.UP ||
+            d == DIRECTION.LEFT && dir != DIRECTION.RIGHT ||
+            d == DIRECTION.RIGHT && dir != DIRECTION.LEFT) {
+            //set the desired direction to the input
+            this.desiredDirection = d;
         }
 
         return;
     }
 
     /*
-     * Set a delay equal to the Game Speed (in milliseconds)
+     * Set a delay equal to the value of GAME_SPEED (in milliseconds)
      */
     public void delay() {
         try {
             TimeUnit.MILLISECONDS.sleep(GAME_SPEED);
         } 
         catch (Exception e) {
-            System.out.println("Game crashed for unexpected reason. Please refresh.");
+            //Notify the user that the frame crashed
+            System.out.println("Frame crashed. Please refresh if this persists as to avoid overusing your CPU.");
             return;
         }
     }
 
     /*
-     * Triggered by the space bar when the Start Screen and 
-     * Game Over Screens are visible
+     * The paintComponent method of the Graphics class
+     * This is used for the graphics of the game.
+     * In this case, it does not need to be overriden
      */
-    public void triggerScreenEvent() {
-        //turn off the start screen 
-        if (this.onStartScreen)
-            this.onStartScreen = false;
-        else if (this.onEndScreen) {
-            this.replay = true;
-            onEndScreen = false;
-        }
-    }
-
-    /*
-     * exit the game over screen
-     */
-    public void exit() {
-        if (onEndScreen) 
-            onEndScreen= false;
-    }
-
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        //Show the start screen
+        //Show the start screen if onStartScreen is true and don't paint anything else
         if (onStartScreen) {
             g.drawImage(
-                new ImageIcon("startscreen.png").getImage(), 0, 0, WINDOW_SIDELENGTH,WINDOW_SIDELENGTH, null
+                new ImageIcon("startscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
             );
-            return;
-        }
-        //show the game over screen
-        if (onEndScreen) {
-            g.drawImage(
-                new ImageIcon("gameoverscreen.png").getImage(), 0, 0, WINDOW_SIDELENGTH,WINDOW_SIDELENGTH, null
-            );
-            
-            //Draw the score in the corner over the game over screen
-            g.setColor(Color.WHITE);
-            g.drawString("Score: "+(snakeLength-1), 5, 30);
-
             return;
         }
 
@@ -269,8 +253,7 @@ public class GamePanel extends JPanel {
                 //Check for fruit
                 if (i == fruitY && j == fruitX) {
                     //paint the fruit
-                    GameTile tile = new GameTile(TILE_WIDTH);
-                    tile.setColor(FRUIT_COLOR);
+                    GameTile tile = new GameTile(TILE_WIDTH, FRUIT_COLOR);
                     tile.paintTile(j,i,g);
                 }
                 //Check for the snake
@@ -279,8 +262,7 @@ public class GamePanel extends JPanel {
                         //is part of snake
                         if (snakeX[k] == j && snakeY[k] == i) {
                             //paint the snake
-                            GameTile tile = new GameTile(TILE_WIDTH);
-                            tile.setColor(SNAKE_COLOR);
+                            GameTile tile = new GameTile(TILE_WIDTH,SNAKE_COLOR);
                             tile.paintTile(j,i,g);
                             break;
                         }
@@ -290,9 +272,75 @@ public class GamePanel extends JPanel {
             }
         }
 
-        //draw the score in the corner of the panel
-        g.setColor(Color.WHITE);
-        g.drawString("Score: "+(snakeLength-1), 5, 30);
-    } 
-}
+        //show the game over screen if onEndScreen is true
+        if (onEndScreen) {
+            g.drawImage(
+                new ImageIcon("gameoverscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
+            );
+        }
 
+        //draw the score in the top left corner of the panel
+        g.setColor(Color.WHITE);
+        g.drawString("Score: "+(snakeLength-1), 5, 30); //the head of the snake is excluded from the score (hence snakeLength-1)
+    } 
+
+    /*
+     * The following nested class is used to get keyboard input from the user in order
+     * to play the game
+     */
+    class SnakeControl extends KeyAdapter {
+
+        public SnakeControl() {
+            super();
+        }
+    
+        @Override
+        public void keyPressed(KeyEvent e) {
+            switch (e.getKeyCode()) {
+                //Moving Left
+                case 65: // A
+                case 97: // a
+                case KeyEvent.VK_LEFT: //left arrow key
+                    move(GamePanel.DIRECTION.LEFT);
+                    break;
+                //Moving Right
+                case 68: // D
+                case 100: // d
+                case KeyEvent.VK_RIGHT: //right arrow key
+                    move(GamePanel.DIRECTION.RIGHT);
+                    break;
+                //Moving Up
+                case 87: // W
+                case 119: // w
+                case KeyEvent.VK_UP: //up arrow key
+                    move(GamePanel.DIRECTION.UP);
+                    break;
+                //Moving Down
+                case 83: // S
+                case 115: //s
+                case KeyEvent.VK_DOWN: //down arrow key
+                    move(GamePanel.DIRECTION.DOWN);
+                    break;
+                //Start the game on the Start Screen or replay the game on the end screen
+                case 32: //Space
+                    //turn off the start screen 
+                    if (onStartScreen)
+                        onStartScreen = false;
+                    //leave gameover screen and set replay to true
+                    else if (onEndScreen) {
+                        replay = true;
+                        onEndScreen = false;
+                    }
+                    break;
+                //Exit the game on the Game Over Screen
+                case 27: //escape
+                    if (onEndScreen) 
+                        onEndScreen= false;
+                    break;
+                // Do nothing by default. I'm a fan of redundancy when coding, if you have yet to notice
+                default:
+                    break;
+            }
+        }
+    }
+}

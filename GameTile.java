@@ -1,5 +1,5 @@
 /*
- * A very simple class that creates tiles that can be painted in a JPanel
+ * A very simple class that creates tiles that can be painted in a JPanel using a tile-based coordinate system.
  * 
  * @author: Edan Steen
  * @version: 1.0
@@ -8,18 +8,30 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class GameTile  {
-    //color of the tile
+
+    //color of the tile.
     public Color color;
     //width of the tile
     public int tileWidth;
 
     /*
-     * Create the tile with the specified width
+     * Create a tile with the specified width
      * 
      * @param int width: the desired width of the tile
      */
     GameTile(int width) {
         this.tileWidth = width;
+    }
+
+    /*
+     * Create a tile with the specified width and color
+     * 
+     * @param int width: the desired width of the tile
+     * @param Color c: the desired color of the tile
+     */
+    GameTile(int width, Color c) {
+        this.tileWidth = width;
+        this.color = c;
     }
 
     /*
@@ -43,6 +55,7 @@ public class GameTile  {
      */
     public void paintTile(int x, int y, Graphics g) {
         g.setColor(color);
+        //make the tile with the specified width and space it so that other tiles fit into their own tile-based coordinates
         g.fillRect(x*tileWidth,y*tileWidth,tileWidth,tileWidth);
         return;
     }
