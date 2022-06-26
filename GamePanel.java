@@ -57,7 +57,7 @@ public class GamePanel extends JPanel {
     //the current direction of the snake
     DIRECTION dir; 
     //the direction the user wants the snake to go
-    DIRECTION desiredDirection; 
+    DIRECTION queuedDirection; 
 
     /*
      * Create the panel the game will be played in.
@@ -106,7 +106,7 @@ public class GamePanel extends JPanel {
         fruitY = snakeY[0];
 
         //keep snake still at the start of the game
-        desiredDirection = DIRECTION.STOP;
+        queuedDirection = DIRECTION.STOP;
 
         //Loop until the game ends
         while (!gameOver) {
@@ -120,7 +120,7 @@ public class GamePanel extends JPanel {
             }
             
             //update the direction to be the desired direction. this is done to avoid the user clicking to fast and making the snake move backwards
-            dir = desiredDirection;
+            dir = queuedDirection;
 
             //displace the head of the snake based on the direction
             switch (dir) {
@@ -211,7 +211,7 @@ public class GamePanel extends JPanel {
             d == DIRECTION.LEFT && dir != DIRECTION.RIGHT ||
             d == DIRECTION.RIGHT && dir != DIRECTION.LEFT) {
             //set the desired direction to the input
-            this.desiredDirection = d;
+            queuedDirection = d;
         }
 
         return;
@@ -243,7 +243,7 @@ public class GamePanel extends JPanel {
         //Show the start screen if onStartScreen is true and don't paint anything else
         if (onStartScreen) {
             g.drawImage(
-                new ImageIcon("startscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
+                new ImageIcon("images/startscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
             );
             return;
         }
@@ -275,7 +275,7 @@ public class GamePanel extends JPanel {
         //show the game over screen if onEndScreen is true
         if (onEndScreen) {
             g.drawImage(
-                new ImageIcon("gameoverscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
+                new ImageIcon("images/gameoverscreen.png").getImage(),0,0,WINDOW_SIDELENGTH,WINDOW_SIDELENGTH,null
             );
         }
 
@@ -337,7 +337,7 @@ public class GamePanel extends JPanel {
                     if (onEndScreen) 
                         onEndScreen= false;
                     break;
-                // Do nothing by default. I'm a fan of redundancy when coding, if you have yet to notice
+                // Do nothing by default.
                 default:
                     break;
             }

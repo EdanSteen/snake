@@ -1,9 +1,12 @@
 /*
  * Snake created in Java.
  * The game involves a snake, controlled by the player using WASD or arrow keys,
- * that eats fruit randomly spawned in the arena to 
- * This class requires GamePanel.java, GameTile.java, startScreen.png and
- * gameoverscreen.png to be in the same directory in order to funciton as intended. 
+ * that eats fruit randomly spawned in the arena to grow longer. The goal is to 
+ * reach the longest possible length (the area of the arena)
+ * 
+ * This class requires GamePanel.java, GameTile.java, and a folder titled 'images'
+ * containing startScreen.png and gameoverscreen.png to be in the same directory in 
+ * order to funciton as intended. 
  * 
  * @author: Edan Steen
  * @version: 1.0
