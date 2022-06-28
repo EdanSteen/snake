@@ -4,8 +4,10 @@
  * @author: Edan Steen
  * @version: 1.0
  */
+
 import java.awt.Color;
 import java.awt.Graphics;
+
 
 public class GameTile  {
 

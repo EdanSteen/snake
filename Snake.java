@@ -11,10 +11,12 @@
  * @author: Edan Steen
  * @version: 1.0
  */
+
 import javax.swing.JFrame;
 
-public class Snake {
 
+public class Snake {
+    
     public Snake() throws Exception {
         //Create the window
         JFrame frame = new JFrame("Snake");
