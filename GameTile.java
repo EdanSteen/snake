@@ -21,7 +21,7 @@ public class GameTile  {
      * 
      * @param int width: the desired width of the tile
      */
-    GameTile(int width) {
+    public GameTile(int width) {
         this.tileWidth = width;
     }
 
@@ -31,7 +31,7 @@ public class GameTile  {
      * @param int width: the desired width of the tile
      * @param Color c: the desired color of the tile
      */
-    GameTile(int width, Color c) {
+    public GameTile(int width, Color c) {
         this.tileWidth = width;
         this.color = c;
     }

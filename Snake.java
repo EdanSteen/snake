@@ -29,15 +29,12 @@ public class Snake {
 
         //make sure frame is sized around the preferred size of the panel
         frame.pack();
-
         //put the frame in the middle of the screen
         frame.setLocationRelativeTo(null); 
-
         frame.setVisible(true);
 
         //run the game 
         panel.runGame();
-
         //automatically close the window once game is done
         frame.dispose();
 
